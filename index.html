@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мозгобойня — панель ведущего</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2B1B3D;
+    --gold:#F4B740;
+    --coral:#E8555B;
+    --mint:#5FD9A4;
+    --paper:#F7F3ED;
+    --paper-dim:#cfc4e0;
+    --line: rgba(247,243,237,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #4a2f66 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, #3a2450 0%, transparent 55%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'Manrope', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  #landing{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:26px;
+    padding:40px 20px;
+    text-align:center;
+  }
+  #landing .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  #landing h1{
+    font-family:'Unbounded', sans-serif;
+    font-weight:800;
+    font-size:clamp(28px,4vw,44px);
+    margin:0;
+  }
+  .host-grid{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
+  .host-btn{
+    font-family:'Unbounded', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:20px 30px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.05);
+    color:var(--paper);
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    min-width:200px;
+  }
+  .host-btn:hover{background:rgba(244,183,64,0.14); border-color:var(--gold); transform:translateY(-2px);}
+
+  #app{display:none; flex:1; flex-direction:column;}
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:12px 20px;
+    border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--paper-dim);
+    flex-wrap:wrap;
+  }
+  .topbar .host-name{color:var(--gold); font-weight:700;}
+  .topbar button{
+    background:none;border:1px solid var(--line);color:var(--paper-dim);
+    border-radius:999px;padding:5px 12px;cursor:pointer;font-family:'JetBrains Mono';font-size:12px;
+  }
+  .topbar button:hover{color:var(--paper); border-color:var(--paper-dim);}
+
+  main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px 20px 10px;
+    gap:20px;
+  }
+
+  .round-eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    opacity:.9;
+  }
+  .round-title{
+    font-family:'Unbounded', sans-serif;
+    font-weight:800;
+    font-size:clamp(28px, 4.4vw, 52px);
+    line-height:1.05;
+    text-align:center;
+    max-width:900px;
+    margin:2px 0 0;
+  }
+  .round-note{font-size:14px; color:var(--paper-dim); text-align:center; max-width:620px;}
+
+  .card{
+    width:min(760px, 92vw);
+    background:rgba(255,255,255,0.045);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:34px 30px;
+    text-align:center;
+    min-height:180px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+  }
+  .card.private{border-color:rgba(232,85,91,0.55); background:rgba(232,85,91,0.08);}
+
+  .prompt{font-size:clamp(20px,2.6vw,28px); font-weight:700; line-height:1.3;}
+  .prompt.emoji{font-size:clamp(34px,5vw,54px); line-height:1.2;}
+  .prompt-img{max-width:100%; max-height:320px; border-radius:12px; border:1px solid var(--line);}
+
+  .answer{
+    font-family:'Unbounded', sans-serif;
+    font-weight:700;
+    font-size:clamp(18px,2.4vw,24px);
+    color:var(--mint);
+    display:none;
+  }
+  .answer.show{display:block;}
+
+  .reveal-btn{
+    font-family:'Manrope', sans-serif;
+    font-weight:800;
+    font-size:14px;
+    letter-spacing:.03em;
+    padding:11px 22px;
+    border-radius:999px;
+    border:none;
+    background:var(--gold);
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .reveal-btn:hover{transform:translateY(-2px); box-shadow:0 8px 20px rgba(244,183,64,0.25);}
+  .reveal-btn:active{transform:translateY(0);}
+
+  audio{width:100%; max-width:420px; accent-color: var(--gold);}
+
+  .listen-btn{
+    font-family:'Unbounded', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:16px 36px;
+    border-radius:999px;
+    border:none;
+    background:var(--mint);
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .listen-btn:hover{transform:translateY(-2px); box-shadow:0 8px 20px rgba(95,217,164,0.25);}
+  .listen-btn:disabled{opacity:.4; cursor:default; transform:none; box-shadow:none;}
+
+  .guess-form{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+  }
+  .guess-input{
+    font-family:'Manrope', sans-serif;
+    font-size:16px;
+    padding:12px 16px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.06);
+    color:var(--paper);
+    min-width:220px;
+  }
+  .guess-input::placeholder{color:var(--paper-dim);}
+  .guess-input:disabled{opacity:.6;}
+  .submit-btn{
+    font-family:'Manrope', sans-serif;
+    font-weight:800;
+    font-size:14px;
+    padding:12px 22px;
+    border-radius:12px;
+    border:none;
+    background:var(--gold);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .submit-btn:hover{transform:translateY(-1px);}
+  .submit-btn:disabled{opacity:.4; cursor:default;}
+
+  .guess-result{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .guess-result.show{display:flex;}
+  .result-tag{
+    font-family:'Unbounded', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    padding:8px 18px;
+    border-radius:999px;
+  }
+  .result-tag.correct{background:rgba(95,217,164,0.18); color:var(--mint); border:1px solid rgba(95,217,164,0.4);}
+  .result-tag.wrong{background:rgba(232,85,91,0.18); color:var(--coral); border:1px solid rgba(232,85,91,0.4);}
+  .result-photo{
+    width:130px;height:130px;
+    border-radius:16px;
+    object-fit:cover;
+    border:1px solid var(--line);
+  }
+  .result-name{
+    font-family:'Unbounded', sans-serif;
+    font-weight:700;
+    font-size:20px;
+  }
+
+  .item-nav{display:flex; align-items:center; gap:14px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--paper-dim);}
+  .item-nav button{background:none;border:1px solid var(--line);color:var(--paper); width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;}
+  .item-nav button:hover{background:rgba(255,255,255,0.08);}
+
+  .controls-row{display:flex; gap:28px; flex-wrap:wrap; align-items:center; justify-content:center;}
+
+  .timer-wrap{display:flex; align-items:center; gap:14px;}
+  .timer-ring{position:relative; width:78px; height:78px;}
+  .timer-ring svg{transform:rotate(-90deg);}
+  .timer-ring circle{fill:none; stroke-width:5;}
+  .timer-bg{stroke:rgba(255,255,255,0.1);}
+  .timer-fg{stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke .3s ease;}
+  .timer-fg.low{stroke:var(--coral);}
+  .timer-num{position:absolute;inset:0; display:flex;align-items:center;justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px;}
+  .timer-controls{display:flex;flex-direction:column;gap:6px;}
+  .timer-controls .row{display:flex; gap:6px;}
+  .timer-controls button{background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--paper); border-radius:8px; padding:6px 10px; font-size:12px; font-family:'Manrope'; font-weight:700; cursor:pointer;}
+  .timer-controls button:hover{background:rgba(255,255,255,0.13);}
+  .timer-controls button.primary{background:var(--gold); color:var(--ink); border-color:var(--gold);}
+
+  .counter-wrap{display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.05); border:1px solid var(--line); border-radius:14px; padding:10px 16px;}
+  .counter-label{font-size:13px; color:var(--paper-dim); font-weight:700;}
+  .counter-val{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:24px; color:var(--mint); min-width:30px; text-align:center;}
+  .counter-btn{width:32px;height:32px;border-radius:50%; border:1px solid var(--line); background:rgba(255,255,255,0.06); color:var(--paper); font-weight:700; cursor:pointer; font-size:17px; line-height:1;}
+  .counter-btn:hover{background:rgba(255,255,255,0.14);}
+
+  footer{display:flex; flex-direction:column; align-items:center; gap:14px; padding:18px 16px 26px; border-top:1px solid var(--line);}
+  .round-switch{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:920px;}
+  .round-chip{font-family:'JetBrains Mono', monospace; font-size:12px; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,0.03); color:var(--paper-dim); cursor:pointer; white-space:nowrap;}
+  .round-chip.active{background:var(--gold); color:var(--ink); border-color:var(--gold); font-weight:700;}
+  .round-chip.private-chip{border-color:rgba(232,85,91,0.4);}
+
+  .big-nav{display:flex; gap:16px; align-items:center;}
+  .nav-btn{font-family:'Unbounded', sans-serif; font-weight:700; font-size:14px; padding:12px 24px; border-radius:14px; border:1px solid var(--line); background:rgba(255,255,255,0.05); color:var(--paper); cursor:pointer; transition:background .12s ease, transform .12s ease;}
+  .nav-btn:hover{background:rgba(255,255,255,0.12); transform:translateY(-1px);}
+  .nav-btn:disabled{opacity:.3; cursor:default; transform:none;}
+
+  @media (max-width:560px){ .round-title{font-size:26px;} .card{padding:26px 18px;} }
+</style>
+</head>
+<body>
+
+<div id="landing">
+  <div class="eyebrow">Мозгобойня — выбери себя</div>
+  <h1>ваш лучший ведущий</h1>
+  <div class="host-grid" id="hostGrid"></div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <span>ведущая: <span class="host-name" id="hostLabel"></span></span>
+    <button id="switchHost">сменить</button>
+  </div>
+
+  <main>
+    <div class="round-eyebrow" id="roundEyebrow">РАУНД 1 ИЗ 5</div>
+    <div class="round-title" id="roundTitle">—</div>
+    <div class="round-note" id="roundNote"></div>
+
+    <div class="card" id="card">
+      <div class="prompt" id="prompt">—</div>
+      <img class="prompt-img" id="promptImg" style="display:none;">
+      <div class="answer" id="answer"></div>
+      <div id="audioSlot"></div>
+      <button class="reveal-btn" id="revealBtn">показать ответ</button>
+
+      <button class="listen-btn" id="listenBtn" style="display:none;">🔊 прослушать</button>
+      <div class="guess-form" id="guessForm" style="display:none;">
+        <input type="text" class="guess-input" id="guessInput" placeholder="кого назвала команда?">
+        <button class="submit-btn" id="submitGuess">отправить ответ</button>
+      </div>
+      <div class="guess-result" id="guessResult">
+        <div class="result-tag" id="resultTag"></div>
+        <img class="result-photo" id="resultPhoto">
+        <div class="result-name" id="resultName"></div>
+      </div>
+
+      <div class="item-nav">
+        <button id="itemPrev">‹</button>
+        <span id="itemCounter">1 / 1</span>
+        <button id="itemNext">›</button>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <div class="timer-wrap">
+        <div class="timer-ring">
+          <svg width="78" height="78">
+            <circle class="timer-bg" cx="39" cy="39" r="33"></circle>
+            <circle class="timer-fg" id="timerFg" cx="39" cy="39" r="33"></circle>
+          </svg>
+          <div class="timer-num" id="timerNum">10:00</div>
+        </div>
+        <div class="timer-controls">
+          <div class="row">
+            <button class="primary" id="tStart">старт</button>
+            <button id="tReset">сброс</button>
+          </div>
+          <div class="row">
+            <button id="tMinus">-1 мин</button>
+            <button id="tPlus">+1 мин</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-wrap">
+        <span class="counter-label">правильных ответов</span>
+        <button class="counter-btn" id="cMinus">−</button>
+        <span class="counter-val" id="cVal">0</span>
+        <button class="counter-btn" id="cPlus">+</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="round-switch" id="roundSwitch"></div>
+    <div class="big-nav">
+      <button class="nav-btn" id="prevRound">← пред. раунд</button>
+      <button class="nav-btn" id="nextRound">след. раунд →</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+const HOSTS = ['Настя Федотова', 'Юля Домославская', 'Полина Лавелина'];
+const ROUND_MINUTES = 10;
+
+const ROUNDS = [
+  {
+    title: 'Голос народа',
+    rules: ['слушаем фразу', 'угадываем кто это', 'радуемся, что мы умнички'],
+    guessAudio: true,
+    items: [
+      {name:'Настя Домрачева', audio:'audio/voice-01.m4a', image:'images/photo-01.png'},
+      {name:'Полина Лавелина', audio:'audio/voice-02.m4a', image:'images/photo-02.png'},
+      {name:'Ваня Берестов', audio:'audio/voice-03.m4a', image:'images/photo-03.png'},
+      {name:'Кристина Юкова', audio:'audio/voice-04.m4a', image:'images/photo-04.png'},
+      {name:'Миша Марков', audio:'audio/voice-05.m4a', image:'images/photo-05.png'},
+      {name:'Лев Губин', audio:'audio/voice-06.m4a', image:'images/photo-06.png'},
+      {name:'Слава Погодаев', audio:'audio/voice-07.m4a', image:'images/photo-07.png'},
+      {name:'Ярик Греков', audio:'audio/voice-08.m4a', image:'images/photo-08.png'},
+      {name:'Катя Кирьянова', audio:'audio/voice-09.m4a', image:'images/photo-09.png'},
+      {name:'Аксинья Холманских', audio:'audio/voice-10.m4a', image:'images/photo-10.png'},
+      {name:'Алена Киселева', audio:'audio/voice-11.m4a', image:'images/photo-11.png'},
+      {name:'Дима Мусин', audio:'audio/voice-12.m4a', image:'images/photo-12.png'},
+    ]
+  },
+  {
+    title: 'Иными словами',
+    private: true,
+    note: 'Слово шлёшь в личку одному участнику — он объясняет вслух, не называя. Кто угадал — следующий объясняющий, ему в личку новое слово. По кругу, пока не кончится время.',
+    items: [
+      {prompt:'СПИСОК СЛОВ ДЛЯ ЛИЧКИ (не показывать участникам!)', answer:'оффер · испытательный срок · онбординг · дедлайн · отпуск · корпоратив · зарплата · собеседование · резюме · фидбек · митинг · дедбилд'},
+    ]
+  },
+  {
+    title: 'Не дай себя обмануть',
+    note: 'Читаешь утверждение — команда голосует правда/миф. +1 за верный ответ.',
+    items: [
+      {prompt:'у нас в компании кто-то проходил собеседование, лёжа в кровати с температурой', answer:'[правда / миф — впиши факт]'},
+      {prompt:'в компании есть киноклуб, который существует уже больше года', answer:'[правда / миф]'},
+      {prompt:'один из тимлидов ни разу не опаздывал на созвон за весь 2026 год', answer:'[правда / миф]'},
+    ]
+  },
+  {
+    title: 'ККК-клуб',
+    note: 'Загадки на фильмы/книги/актёров по мотивам внутреннего киноклуба. Можно картинкой (image) или текстом.',
+    items: [
+      {prompt:'🕵️‍♂️🚬🌃 — фильм из подборки клуба', answer:'[впиши название]'},
+      {prompt:'📚 книга, которую разбирали на последней встрече', answer:'[впиши]'},
+      {prompt:'🎬 актёр, о котором был спор в чате клуба', answer:'[впиши]'},
+    ]
+  },
+  {
+    title: 'ЧБД',
+    note: 'Скрин сообщения из Слака — команда угадывает продолжение или автора. Вставь картинку скрина в image, пример ниже.',
+    items: [
+      {prompt:'«мы верим, что найм — это не воронка, а...»', image:'images/screenshot1.png', answer:'[впиши окончание / автора]'},
+      {prompt:'«если кандидат опаздывает на собес, то...»', answer:'[впиши]'},
+    ]
+  },
+];
+
+let roundIdx = 0, itemIdx = 0, correctCount = 0;
+
+const hostGrid = document.getElementById('hostGrid');
+HOSTS.forEach(name=>{
+  const btn = document.createElement('button');
+  btn.className = 'host-btn';
+  btn.textContent = 'я веду: ' + name;
+  btn.addEventListener('click', ()=>selectHost(name));
+  hostGrid.appendChild(btn);
+});
+
+function selectHost(name){
+  document.getElementById('hostLabel').textContent = name;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  render();
+}
+document.getElementById('switchHost').addEventListener('click', ()=>{
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+});
+
+const roundEyebrow = document.getElementById('roundEyebrow');
+const roundTitle = document.getElementById('roundTitle');
+const roundNote = document.getElementById('roundNote');
+const card = document.getElementById('card');
+const promptEl = document.getElementById('prompt');
+const promptImg = document.getElementById('promptImg');
+const answerEl = document.getElementById('answer');
+const audioSlot = document.getElementById('audioSlot');
+const revealBtn = document.getElementById('revealBtn');
+const itemCounter = document.getElementById('itemCounter');
+const roundSwitch = document.getElementById('roundSwitch');
+const cVal = document.getElementById('cVal');
+const listenBtn = document.getElementById('listenBtn');
+const guessForm = document.getElementById('guessForm');
+const guessInput = document.getElementById('guessInput');
+const submitGuess = document.getElementById('submitGuess');
+const guessResult = document.getElementById('guessResult');
+const resultTag = document.getElementById('resultTag');
+const resultPhoto = document.getElementById('resultPhoto');
+const resultName = document.getElementById('resultName');
+let currentAudio = null;
+
+function renderRoundSwitch(){
+  roundSwitch.innerHTML = '';
+  ROUNDS.forEach((r,i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'round-chip' + (i===roundIdx?' active':'') + (r.private?' private-chip':'');
+    chip.textContent = (i+1)+'. '+r.title;
+    chip.addEventListener('click', ()=>{ roundIdx=i; itemIdx=0; correctCount=0; render(); });
+    roundSwitch.appendChild(chip);
+  });
+}
+
+function normalize(s){
+  return s.toLowerCase().replace(/[^a-zа-яё\s]/gi,'').trim();
+}
+function isCorrectGuess(input, correctName){
+  const n = normalize(input);
+  if(!n) return false;
+  const parts = normalize(correctName).split(/\s+/).filter(Boolean);
+  return parts.some(p => p.length>1 && n.includes(p));
+}
+
+function render(){
+  const r = ROUNDS[roundIdx];
+  const it = r.items[itemIdx];
+
+  roundEyebrow.textContent = `РАУНД ${roundIdx+1} ИЗ ${ROUNDS.length}`;
+  roundTitle.textContent = r.title;
+  if(r.rules){
+    roundNote.innerHTML = '<ol style="text-align:left; display:inline-block; margin:0; padding-left:20px;">' +
+      r.rules.map(x=>`<li>${x}</li>`).join('') + '</ol>';
+  } else {
+    roundNote.textContent = r.note || '';
+  }
+  card.classList.toggle('private', !!r.private);
+
+  audioSlot.innerHTML = '';
+  guessResult.classList.remove('show');
+  guessInput.value = '';
+  guessInput.disabled = false;
+  submitGuess.disabled = false;
+
+  if(r.guessAudio){
+    promptEl.style.display = 'none';
+    promptImg.style.display = 'none';
+    answerEl.style.display = 'none';
+    revealBtn.style.display = 'none';
+    listenBtn.style.display = 'inline-block';
+    guessForm.style.display = 'flex';
+
+    if(currentAudio){ currentAudio.pause(); currentAudio = null; }
+    currentAudio = new Audio(it.audio);
+    listenBtn.onclick = ()=>{ currentAudio.currentTime = 0; currentAudio.play(); };
+  } else {
+    promptEl.style.display = '';
+    answerEl.style.display = '';
+    listenBtn.style.display = 'none';
+    guessForm.style.display = 'none';
+
+    promptEl.className = 'prompt' + (/\p{Emoji}/u.test(it.prompt) ? ' emoji' : '');
+    promptEl.textContent = it.prompt;
+
+    if(it.image){ promptImg.src = it.image; promptImg.style.display = 'block'; }
+    else { promptImg.style.display = 'none'; }
+
+    answerEl.textContent = it.answer || '';
+    answerEl.classList.remove('show');
+    revealBtn.textContent = 'показать ответ';
+    revealBtn.style.display = it.answer ? 'inline-block' : 'none';
+
+    if(it.audio){
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = it.audio;
+      audioSlot.appendChild(audio);
+    }
+  }
+
+  itemCounter.textContent = `${itemIdx+1} / ${r.items.length}`;
+  document.getElementById('itemPrev').disabled = itemIdx===0;
+  document.getElementById('itemNext').disabled = itemIdx===r.items.length-1;
+  document.getElementById('prevRound').disabled = roundIdx===0;
+  document.getElementById('nextRound').disabled = roundIdx===ROUNDS.length-1;
+
+  cVal.textContent = correctCount;
+  renderRoundSwitch();
+  resetTimer();
+}
+
+submitGuess.addEventListener('click', ()=>{
+  const r = ROUNDS[roundIdx];
+  const it = r.items[itemIdx];
+  const guess = guessInput.value;
+  const ok = isCorrectGuess(guess, it.name);
+
+  resultTag.textContent = ok ? 'верно!' : 'мимо';
+  resultTag.className = 'result-tag ' + (ok ? 'correct' : 'wrong');
+  resultPhoto.src = it.image;
+  resultName.textContent = it.name;
+  guessResult.classList.add('show');
+
+  guessInput.disabled = true;
+  submitGuess.disabled = true;
+
+  if(ok){ correctCount++; cVal.textContent = correctCount; }
+});
+guessInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !submitGuess.disabled) submitGuess.click(); });
+
+revealBtn.addEventListener('click', ()=>{
+  const showing = answerEl.classList.toggle('show');
+  revealBtn.textContent = showing ? 'скрыть ответ' : 'показать ответ';
+});
+
+document.getElementById('itemPrev').addEventListener('click', ()=>{ if(itemIdx>0){ itemIdx--; render(); } });
+document.getElementById('itemNext').addEventListener('click', ()=>{
+  const r = ROUNDS[roundIdx];
+  if(itemIdx<r.items.length-1){ itemIdx++; render(); }
+});
+document.getElementById('prevRound').addEventListener('click', ()=>{
+  if(roundIdx>0){ roundIdx--; itemIdx=0; correctCount=0; render(); }
+});
+document.getElementById('nextRound').addEventListener('click', ()=>{
+  if(roundIdx<ROUNDS.length-1){ roundIdx++; itemIdx=0; correctCount=0; render(); }
+});
+
+document.getElementById('cPlus').addEventListener('click', ()=>{ correctCount++; cVal.textContent=correctCount; });
+document.getElementById('cMinus').addEventListener('click', ()=>{ correctCount=Math.max(0,correctCount-1); cVal.textContent=correctCount; });
+
+let timerTotal = ROUND_MINUTES*60;
+let timerLeft = timerTotal;
+let timerRunning = false;
+let timerInterval = null;
+const timerFg = document.getElementById('timerFg');
+const timerNum = document.getElementById('timerNum');
+const CIRC = 2*Math.PI*33;
+timerFg.style.strokeDasharray = CIRC;
+
+function fmt(s){
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function paintTimer(){
+  const frac = Math.max(0, timerLeft/timerTotal);
+  timerFg.style.strokeDashoffset = CIRC*(1-frac);
+  timerFg.classList.toggle('low', timerLeft<=30);
+  timerNum.textContent = fmt(timerLeft);
+}
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerLeft = timerTotal;
+  document.getElementById('tStart').textContent = 'старт';
+  paintTimer();
+}
+document.getElementById('tStart').addEventListener('click', (e)=>{
+  if(timerRunning){
+    clearInterval(timerInterval);
+    timerRunning = false;
+    e.target.textContent = 'старт';
+    return;
+  }
+  timerRunning = true;
+  e.target.textContent = 'пауза';
+  timerInterval = setInterval(()=>{
+    timerLeft = Math.max(0, timerLeft-1);
+    paintTimer();
+    if(timerLeft===0){
+      clearInterval(timerInterval);
+      timerRunning=false;
+      document.getElementById('tStart').textContent='старт';
+    }
+  }, 1000);
+});
+document.getElementById('tReset').addEventListener('click', resetTimer);
+document.getElementById('tMinus').addEventListener('click', ()=>{ timerTotal = Math.max(60, timerTotal-60); resetTimer(); });
+document.getElementById('tPlus').addEventListener('click', ()=>{ timerTotal += 60; resetTimer(); });
+
+paintTimer();
+</script>
+</body>
+</html>
