@@ -267,6 +267,12 @@
     border:1px solid var(--line);
   }
 
+  .hints-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+  .hint-btn{background:var(--paper) !important; color:var(--ink) !important;}
+  .hint-btn:disabled{opacity:.4; cursor:default;}
+  .hints-images{display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
+  .hints-images img{max-width:220px; max-height:160px; border-radius:12px; border:1px solid var(--line); object-fit:cover;}
+
   .item-nav{display:flex; align-items:center; gap:14px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--paper-dim);}
   .item-nav button{background:none;border:1px solid var(--line);color:var(--paper); width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;}
   .item-nav button:hover{background:rgba(255,255,255,0.08);}
@@ -354,6 +360,22 @@
       </div>
       <button class="listen-btn" id="showVideoBtn" style="display:none;">🎬 показать видео</button>
       <div id="videoSlot"></div>
+
+      <img class="prompt-img" id="filmKadr" style="display:none;">
+      <div class="hints-row" id="hintsRow" style="display:none;">
+        <button class="submit-btn hint-btn" id="hintBtn1">подсказка 1</button>
+        <button class="submit-btn hint-btn" id="hintBtn2">подсказка 2</button>
+      </div>
+      <div class="hints-images" id="hintsImages"></div>
+      <div class="guess-form" id="filmForm" style="display:none;">
+        <input type="text" class="guess-input" id="filmInput" placeholder="название фильма">
+        <button class="submit-btn" id="submitFilm">отправить ответ</button>
+      </div>
+      <div class="guess-result" id="filmResult">
+        <div class="result-tag" id="filmResultTag"></div>
+        <img class="prompt-img" id="filmOtvetImg">
+        <div class="result-name" id="filmResultName"></div>
+      </div>
 
       <div class="big-timer-num" id="bigTimerNum" style="display:none;">10:00</div>
 
@@ -444,7 +466,7 @@ const ROUNDS = [
       {statement:'Настя Федотова с 5 до 13 лет занималась спортивной гимнастикой, дошла до второго взрослого разряда, а на соревнованиях в Казани сломала палец на кольцах', isTrue:false},
       {statement:'Дима Мусин ходил на моделирование по дереву', isTrue:true},
       {statement:'Паша Соковнин 4 года учился в музыкалке по классу флейты и играл в школьном духовом оркестре на выпускном', isTrue:false},
-      {statement:'Маму Маши Заворотной уговорила её сделать пирсинг в животе', isTrue:true},
+      {statement:'Мама Маши Заворотной уговорила её сделать пирсинг в животе', isTrue:true},
       {statement:'Юля Домославская в третьем классе играла лягушку в школьной постановке «Дюймовочки»', isTrue:false},
       {statement:'Маша Елисеева умеет жонглировать сидя на шпагате', isTrue:true},
       {statement:'Полина Поспелова свободно говорит на трёх языках, один из которых — эсперанто', isTrue:false},
@@ -459,11 +481,19 @@ const ROUNDS = [
   },
   {
     title: 'ККК-клуб',
-    note: 'Загадки на фильмы/книги/актёров по мотивам внутреннего киноклуба. Можно картинкой (image) или текстом.',
+    note: 'Смотрим кадр. Можно открыть подсказку 1 и/или подсказку 2. Впиши название фильма и жми «отправить ответ».',
+    filmRound: true,
     items: [
-      {prompt:'🕵️‍♂️🚬🌃 — фильм из подборки клуба', answer:'[впиши название]'},
-      {prompt:'📚 книга, которую разбирали на последней встрече', answer:'[впиши]'},
-      {prompt:'🎬 актёр, о котором был спор в чате клуба', answer:'[впиши]'},
+      {names:['дюна'], kadr:'duna_kadr.webp', hint1:'duna_podskazka_1.webp', hint2:'duna_podskazka_2.webp', otvet:'duna_otvet.webp', title:'Дюна'},
+      {names:['холоп'], kadr:'holop_kadr.webp', hint1:'holop_podskazka_1.webp', hint2:'holop_podskazka_2.webp', otvet:'holop_otvet.webp', title:'Холоп'},
+      {names:['гранд будапешт','будапешт','отель'], kadr:'hotel_kadr.webp', hint1:'hotel_podskazka_1.webp', hint2:'hotel_podskazka_2.webp', otvet:'hotel_otvet.webp', title:'Отель «Гранд Будапешт»'},
+      {names:['джокер'], kadr:'joker_kadr.webp', hint1:'joker_podskazka_1.webp', hint2:'joker_podskazka_2.webp', otvet:'joker_otvet.webp', title:'Джокер'},
+      {names:['джуманджи'], kadr:'jumangy_kadr.webp', hint1:'jumangy_podskazka_1.webp', hint2:'jumangy_podskazka_2.webp', otvet:'jumangy_otvet.webp', title:'Джуманджи'},
+      {names:['ла ла ленд','лалаленд'], kadr:'lalalend_kadr.webp', hint1:'lalalend_podskazka_1.webp', hint2:'lalalend_podskazka_2.webp', otvet:'lalalend_otvet.webp', title:'Ла-Ла Ленд'},
+      {names:['начало'], kadr:'nachalo_kadr.webp', hint1:'nachalo_podskazka_1.webp', hint2:'nachalo_podskazka_2.webp', otvet:'nachalo_otvet.webp', title:'Начало'},
+      {names:['она'], kadr:'ona_kadr.webp', hint1:'ona_podskazka_1.webp', hint2:'ona_podskazka_2.webp', otvet:'ona_otvet.webp', title:'Она'},
+      {names:['побег из шоушенка','шоушенк','побег'], kadr:'pobeg_kadr.webp', hint1:'pobeg_podskazka_1.webp', hint2:'pobeg_podskazka_2.webp', otvet:'pobeg_otvet.webp', title:'Побег из Шоушенка'},
+      {names:['титаник'], kadr:'titanic_kadr.webp', hint1:'titanic_podskazka_1.webp', hint2:'titanic_podskazka_2.webp', otvet:'titanic_otvet.webp', title:'Титаник'},
     ]
   },
   {
@@ -527,6 +557,18 @@ const truthResult = document.getElementById('truthResult');
 const truthResultTag = document.getElementById('truthResultTag');
 const showVideoBtn = document.getElementById('showVideoBtn');
 const videoSlot = document.getElementById('videoSlot');
+const filmKadr = document.getElementById('filmKadr');
+const hintsRow = document.getElementById('hintsRow');
+const hintBtn1 = document.getElementById('hintBtn1');
+const hintBtn2 = document.getElementById('hintBtn2');
+const hintsImages = document.getElementById('hintsImages');
+const filmForm = document.getElementById('filmForm');
+const filmInput = document.getElementById('filmInput');
+const submitFilm = document.getElementById('submitFilm');
+const filmResult = document.getElementById('filmResult');
+const filmResultTag = document.getElementById('filmResultTag');
+const filmOtvetImg = document.getElementById('filmOtvetImg');
+const filmResultName = document.getElementById('filmResultName');
 let currentAudio = null;
 
 function renderRoundSwitch(){
@@ -573,6 +615,13 @@ function render(){
   truthButtons.querySelectorAll('button').forEach(b=>b.disabled=false);
   showVideoBtn.style.display = 'none';
   videoSlot.innerHTML = '';
+  filmResult.classList.remove('show');
+  hintsImages.innerHTML = '';
+  filmInput.value = '';
+  filmInput.disabled = false;
+  submitFilm.disabled = false;
+  hintBtn1.disabled = false;
+  hintBtn2.disabled = false;
 
   if(r.truthRound){
     promptEl.style.display = 'none';
@@ -582,11 +631,45 @@ function render(){
     listenBtn.style.display = 'none';
     guessForm.style.display = 'none';
     bigTimerNum.style.display = 'none';
+    filmKadr.style.display = 'none';
+    hintsRow.style.display = 'none';
+    filmForm.style.display = 'none';
     truthPrompt.style.display = 'block';
     truthButtons.style.display = 'flex';
 
     truthPrompt.textContent = it.statement;
+  } else if(r.filmRound){
+    promptEl.style.display = 'none';
+    promptImg.style.display = 'none';
+    answerEl.style.display = 'none';
+    revealBtn.style.display = 'none';
+    listenBtn.style.display = 'none';
+    guessForm.style.display = 'none';
+    bigTimerNum.style.display = 'none';
+    truthPrompt.style.display = 'none';
+    truthButtons.style.display = 'none';
+
+    filmKadr.src = it.kadr;
+    filmKadr.style.display = 'block';
+    hintsRow.style.display = 'flex';
+    filmForm.style.display = 'flex';
+
+    hintBtn1.onclick = ()=>{
+      const img = document.createElement('img');
+      img.src = it.hint1;
+      hintsImages.appendChild(img);
+      hintBtn1.disabled = true;
+    };
+    hintBtn2.onclick = ()=>{
+      const img = document.createElement('img');
+      img.src = it.hint2;
+      hintsImages.appendChild(img);
+      hintBtn2.disabled = true;
+    };
   } else if(r.rulesOnly){
+    filmKadr.style.display = 'none';
+    hintsRow.style.display = 'none';
+    filmForm.style.display = 'none';
     promptEl.style.display = 'none';
     promptImg.style.display = 'none';
     answerEl.style.display = 'none';
@@ -602,6 +685,9 @@ function render(){
     listenBtn.style.display = 'inline-block';
     guessForm.style.display = 'flex';
     bigTimerNum.style.display = 'none';
+    filmKadr.style.display = 'none';
+    hintsRow.style.display = 'none';
+    filmForm.style.display = 'none';
 
     if(currentAudio){ currentAudio.pause(); currentAudio = null; }
     currentAudio = new Audio(it.audio);
@@ -610,6 +696,9 @@ function render(){
     promptEl.style.display = '';
     answerEl.style.display = '';
     listenBtn.style.display = 'none';
+    filmKadr.style.display = 'none';
+    hintsRow.style.display = 'none';
+    filmForm.style.display = 'none';
     guessForm.style.display = 'none';
     bigTimerNum.style.display = 'none';
 
@@ -689,6 +778,31 @@ showVideoBtn.addEventListener('click', ()=>{
   videoSlot.innerHTML = `<iframe src="${it.video}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
   showVideoBtn.style.display = 'none';
 });
+
+function isCorrectFilm(input, names){
+  const n = normalize(input);
+  if(!n) return false;
+  return names.some(name => n.includes(normalize(name)) || normalize(name).includes(n));
+}
+submitFilm.addEventListener('click', ()=>{
+  const it = ROUNDS[roundIdx].items[itemIdx];
+  const guess = filmInput.value;
+  const ok = isCorrectFilm(guess, it.names);
+
+  filmResultTag.textContent = ok ? 'верно!' : 'мимо';
+  filmResultTag.className = 'result-tag ' + (ok ? 'correct' : 'wrong');
+  filmOtvetImg.src = it.otvet;
+  filmResultName.textContent = it.title;
+  filmResult.classList.add('show');
+
+  filmInput.disabled = true;
+  submitFilm.disabled = true;
+  hintBtn1.disabled = true;
+  hintBtn2.disabled = true;
+
+  if(ok){ correctCount++; cVal.textContent = correctCount; }
+});
+filmInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !submitFilm.disabled) submitFilm.click(); });
 
 revealBtn.addEventListener('click', ()=>{
   const showing = answerEl.classList.toggle('show');
