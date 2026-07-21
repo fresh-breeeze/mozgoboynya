@@ -242,6 +242,16 @@
     font-size:20px;
   }
 
+  .big-timer-num{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:clamp(64px, 12vw, 140px);
+    color:var(--gold);
+    letter-spacing:.02em;
+    line-height:1;
+  }
+  .big-timer-num.low{color:var(--coral);}
+
   .item-nav{display:flex; align-items:center; gap:14px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--paper-dim);}
   .item-nav button{background:none;border:1px solid var(--line);color:var(--paper); width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;}
   .item-nav button:hover{background:rgba(255,255,255,0.08);}
@@ -319,6 +329,8 @@
         <div class="result-name" id="resultName"></div>
       </div>
 
+      <div class="big-timer-num" id="bigTimerNum" style="display:none;">10:00</div>
+
       <div class="item-nav">
         <button id="itemPrev">‹</button>
         <span id="itemCounter">1 / 1</span>
@@ -392,7 +404,8 @@ const ROUNDS = [
   {
     title: 'Иными словами',
     private: true,
-    note: 'Слово шлёшь в личку одному участнику — он объясняет вслух, не называя. Кто угадал — следующий объясняющий, ему в личку новое слово. По кругу, пока не кончится время.',
+    rulesOnly: true,
+    rules: ['ведущий шлёт каждому в личку слово', 'объясняем его команде, не используя однокоренные слова', 'команда угадывает'],
     items: [
       {prompt:'СПИСОК СЛОВ ДЛЯ ЛИЧКИ (не показывать участникам!)', answer:'оффер · испытательный срок · онбординг · дедлайн · отпуск · корпоратив · зарплата · собеседование · резюме · фидбек · митинг · дедбилд'},
     ]
@@ -467,6 +480,7 @@ const guessResult = document.getElementById('guessResult');
 const resultTag = document.getElementById('resultTag');
 const resultPhoto = document.getElementById('resultPhoto');
 const resultName = document.getElementById('resultName');
+const bigTimerNum = document.getElementById('bigTimerNum');
 let currentAudio = null;
 
 function renderRoundSwitch(){
@@ -510,13 +524,22 @@ function render(){
   guessInput.disabled = false;
   submitGuess.disabled = false;
 
-  if(r.guessAudio){
+  if(r.rulesOnly){
+    promptEl.style.display = 'none';
+    promptImg.style.display = 'none';
+    answerEl.style.display = 'none';
+    revealBtn.style.display = 'none';
+    listenBtn.style.display = 'none';
+    guessForm.style.display = 'none';
+    bigTimerNum.style.display = 'block';
+  } else if(r.guessAudio){
     promptEl.style.display = 'none';
     promptImg.style.display = 'none';
     answerEl.style.display = 'none';
     revealBtn.style.display = 'none';
     listenBtn.style.display = 'inline-block';
     guessForm.style.display = 'flex';
+    bigTimerNum.style.display = 'none';
 
     if(currentAudio){ currentAudio.pause(); currentAudio = null; }
     currentAudio = new Audio(it.audio);
@@ -526,6 +549,7 @@ function render(){
     answerEl.style.display = '';
     listenBtn.style.display = 'none';
     guessForm.style.display = 'none';
+    bigTimerNum.style.display = 'none';
 
     promptEl.className = 'prompt' + (/\p{Emoji}/u.test(it.prompt) ? ' emoji' : '');
     promptEl.textContent = it.prompt;
@@ -545,6 +569,8 @@ function render(){
       audioSlot.appendChild(audio);
     }
   }
+
+  document.querySelector('.item-nav').style.display = r.rulesOnly ? 'none' : 'flex';
 
   itemCounter.textContent = `${itemIdx+1} / ${r.items.length}`;
   document.getElementById('itemPrev').disabled = itemIdx===0;
@@ -615,6 +641,8 @@ function paintTimer(){
   timerFg.style.strokeDashoffset = CIRC*(1-frac);
   timerFg.classList.toggle('low', timerLeft<=30);
   timerNum.textContent = fmt(timerLeft);
+  bigTimerNum.textContent = fmt(timerLeft);
+  bigTimerNum.classList.toggle('low', timerLeft<=30);
 }
 function resetTimer(){
   clearInterval(timerInterval);
