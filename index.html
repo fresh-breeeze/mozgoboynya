@@ -41,21 +41,21 @@
     text-align:center;
   }
   #landing .eyebrow{
-    font-family:'JetBrains Mono', monospace;
+    font-family:'Manrope', sans-serif;
     font-size:13px;
     letter-spacing:.14em;
     text-transform:uppercase;
     color:var(--gold);
   }
   #landing h1{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:800;
     font-size:clamp(28px,4vw,44px);
     margin:0;
   }
   .host-grid{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
   .host-btn{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:700;
     font-size:16px;
     padding:20px 30px;
@@ -69,6 +69,24 @@
   }
   .host-btn:hover{background:rgba(244,183,64,0.14); border-color:var(--gold); transform:translateY(-2px);}
 
+  .landing-rules{
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px 28px;
+    max-width:480px;
+    text-align:left;
+  }
+  .landing-rules-title{
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+  .landing-rules ol{margin:0; padding-left:20px; color:var(--paper-dim); font-size:15px; line-height:1.6;}
+
   #app{display:none; flex:1; flex-direction:column;}
 
   .topbar{
@@ -78,7 +96,7 @@
     gap:14px;
     padding:12px 20px;
     border-bottom:1px solid var(--line);
-    font-family:'JetBrains Mono', monospace;
+    font-family:'Manrope', sans-serif;
     font-size:13px;
     color:var(--paper-dim);
     flex-wrap:wrap;
@@ -86,7 +104,7 @@
   .topbar .host-name{color:var(--gold); font-weight:700;}
   .topbar button{
     background:none;border:1px solid var(--line);color:var(--paper-dim);
-    border-radius:999px;padding:5px 12px;cursor:pointer;font-family:'JetBrains Mono';font-size:12px;
+    border-radius:999px;padding:5px 12px;cursor:pointer;font-family:'Manrope';font-size:12px;
   }
   .topbar button:hover{color:var(--paper); border-color:var(--paper-dim);}
 
@@ -101,7 +119,7 @@
   }
 
   .round-eyebrow{
-    font-family:'JetBrains Mono', monospace;
+    font-family:'Manrope', sans-serif;
     font-size:13px;
     letter-spacing:.14em;
     text-transform:uppercase;
@@ -109,7 +127,7 @@
     opacity:.9;
   }
   .round-title{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:800;
     font-size:clamp(28px, 4.4vw, 52px);
     line-height:1.05;
@@ -140,7 +158,7 @@
   .prompt-img{max-width:100%; max-height:520px; border-radius:12px; border:1px solid var(--line);}
 
   .answer{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:700;
     font-size:clamp(18px,2.4vw,24px);
     color:var(--mint);
@@ -167,7 +185,7 @@
   audio{width:100%; max-width:420px; accent-color: var(--gold);}
 
   .listen-btn{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:700;
     font-size:16px;
     padding:16px 36px;
@@ -222,7 +240,7 @@
   }
   .guess-result.show{display:flex;}
   .result-tag{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:800;
     font-size:15px;
     padding:8px 18px;
@@ -237,13 +255,13 @@
     border:1px solid var(--line);
   }
   .result-name{
-    font-family:'Unbounded', sans-serif;
+    font-family:'Manrope', sans-serif;
     font-weight:700;
     font-size:20px;
   }
 
   .big-timer-num{
-    font-family:'JetBrains Mono', monospace;
+    font-family:'Manrope', sans-serif;
     font-weight:700;
     font-size:clamp(64px, 12vw, 140px);
     color:var(--gold);
@@ -273,7 +291,7 @@
   .hints-images{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
   .hints-images img{max-width:400px; max-height:320px; border-radius:12px; border:1px solid var(--line); object-fit:cover;}
 
-  .item-nav{display:flex; align-items:center; gap:14px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--paper-dim);}
+  .item-nav{display:flex; align-items:center; gap:14px; font-family:'Manrope', sans-serif; font-size:13px; color:var(--paper-dim);}
   .item-nav button{background:none;border:1px solid var(--line);color:var(--paper); width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;}
   .item-nav button:hover{background:rgba(255,255,255,0.08);}
 
@@ -286,7 +304,7 @@
   .timer-bg{stroke:rgba(255,255,255,0.1);}
   .timer-fg{stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke .3s ease;}
   .timer-fg.low{stroke:var(--coral);}
-  .timer-num{position:absolute;inset:0; display:flex;align-items:center;justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px;}
+  .timer-num{position:absolute;inset:0; display:flex;align-items:center;justify-content:center; font-family:'Manrope', sans-serif; font-weight:700; font-size:16px;}
   .timer-controls{display:flex;flex-direction:column;gap:6px;}
   .timer-controls .row{display:flex; gap:6px;}
   .timer-controls button{background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--paper); border-radius:8px; padding:6px 10px; font-size:12px; font-family:'Manrope'; font-weight:700; cursor:pointer;}
@@ -295,18 +313,18 @@
 
   .counter-wrap{display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.05); border:1px solid var(--line); border-radius:14px; padding:10px 16px;}
   .counter-label{font-size:13px; color:var(--paper-dim); font-weight:700;}
-  .counter-val{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:24px; color:var(--mint); min-width:30px; text-align:center;}
+  .counter-val{font-family:'Manrope', sans-serif; font-weight:700; font-size:24px; color:var(--mint); min-width:30px; text-align:center;}
   .counter-btn{width:32px;height:32px;border-radius:50%; border:1px solid var(--line); background:rgba(255,255,255,0.06); color:var(--paper); font-weight:700; cursor:pointer; font-size:17px; line-height:1;}
   .counter-btn:hover{background:rgba(255,255,255,0.14);}
 
   footer{display:flex; flex-direction:column; align-items:center; gap:14px; padding:18px 16px 26px; border-top:1px solid var(--line);}
   .round-switch{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:920px;}
-  .round-chip{font-family:'JetBrains Mono', monospace; font-size:12px; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,0.03); color:var(--paper-dim); cursor:pointer; white-space:nowrap;}
+  .round-chip{font-family:'Manrope', sans-serif; font-size:12px; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,0.03); color:var(--paper-dim); cursor:pointer; white-space:nowrap;}
   .round-chip.active{background:var(--gold); color:var(--ink); border-color:var(--gold); font-weight:700;}
   .round-chip.private-chip{border-color:rgba(232,85,91,0.4);}
 
   .big-nav{display:flex; gap:16px; align-items:center;}
-  .nav-btn{font-family:'Unbounded', sans-serif; font-weight:700; font-size:14px; padding:12px 24px; border-radius:14px; border:1px solid var(--line); background:rgba(255,255,255,0.05); color:var(--paper); cursor:pointer; transition:background .12s ease, transform .12s ease;}
+  .nav-btn{font-family:'Manrope', sans-serif; font-weight:700; font-size:14px; padding:12px 24px; border-radius:14px; border:1px solid var(--line); background:rgba(255,255,255,0.05); color:var(--paper); cursor:pointer; transition:background .12s ease, transform .12s ease;}
   .nav-btn:hover{background:rgba(255,255,255,0.12); transform:translateY(-1px);}
   .nav-btn:disabled{opacity:.3; cursor:default; transform:none;}
 
@@ -316,9 +334,16 @@
 <body>
 
 <div id="landing">
-  <div class="eyebrow">Мозгобойня — выбери себя</div>
   <h1>ваш лучший ведущий</h1>
   <div class="host-grid" id="hostGrid"></div>
+  <div class="landing-rules">
+    <div class="landing-rules-title">правила</div>
+    <ol>
+      <li>5 раундов, один раунд — 10 минут</li>
+      <li>каждый раунд перемешиваемся по комнатам и играем с новой командой</li>
+      <li>таймер раунда стартует автоматически, как только заходишь</li>
+    </ol>
+  </div>
 </div>
 
 <div id="app">
@@ -476,7 +501,7 @@ const ROUNDS = [
   },
   {
     title: 'ККК-клуб',
-    note: 'Смотрим кадр. Можно открыть подсказку 1 и/или подсказку 2. Впиши название фильма и жми «отправить ответ».',
+    note: 'Смотрим кадры. Угадываем фильм. Мы крутые!',
     filmRound: true,
     items: [
       {names:['дюна'], kadr:'duna_kadr.webp', hint1:'duna_podskazka_1.webp', hint2:'duna_podskazka_2.webp', otvet:'duna_otvet.webp', title:'Дюна'},
@@ -507,7 +532,7 @@ const hostGrid = document.getElementById('hostGrid');
 HOSTS.forEach(name=>{
   const btn = document.createElement('button');
   btn.className = 'host-btn';
-  btn.textContent = 'я веду: ' + name;
+  btn.textContent = name;
   btn.addEventListener('click', ()=>selectHost(name));
   hostGrid.appendChild(btn);
 });
@@ -517,6 +542,7 @@ function selectHost(name){
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   render();
+  startFreshRoundTimer();
 }
 document.getElementById('switchHost').addEventListener('click', ()=>{
   document.getElementById('app').style.display = 'none';
@@ -572,7 +598,7 @@ function renderRoundSwitch(){
     const chip = document.createElement('div');
     chip.className = 'round-chip' + (i===roundIdx?' active':'') + (r.private?' private-chip':'');
     chip.textContent = (i+1)+'. '+r.title;
-    chip.addEventListener('click', ()=>{ roundIdx=i; itemIdx=0; correctCount=0; render(); });
+    chip.addEventListener('click', ()=>{ roundIdx=i; itemIdx=0; correctCount=0; render(); startFreshRoundTimer(); });
     roundSwitch.appendChild(chip);
   });
 }
@@ -726,7 +752,7 @@ function render(){
 
   cVal.textContent = correctCount;
   renderRoundSwitch();
-  resetTimer();
+  paintTimer();
 }
 
 submitGuess.addEventListener('click', ()=>{
@@ -810,10 +836,10 @@ document.getElementById('itemNext').addEventListener('click', ()=>{
   if(itemIdx<r.items.length-1){ itemIdx++; render(); }
 });
 document.getElementById('prevRound').addEventListener('click', ()=>{
-  if(roundIdx>0){ roundIdx--; itemIdx=0; correctCount=0; render(); }
+  if(roundIdx>0){ roundIdx--; itemIdx=0; correctCount=0; render(); startFreshRoundTimer(); }
 });
 document.getElementById('nextRound').addEventListener('click', ()=>{
-  if(roundIdx<ROUNDS.length-1){ roundIdx++; itemIdx=0; correctCount=0; render(); }
+  if(roundIdx<ROUNDS.length-1){ roundIdx++; itemIdx=0; correctCount=0; render(); startFreshRoundTimer(); }
 });
 
 document.getElementById('cPlus').addEventListener('click', ()=>{ correctCount++; cVal.textContent=correctCount; });
@@ -848,15 +874,10 @@ function resetTimer(){
   document.getElementById('tStart').textContent = 'старт';
   paintTimer();
 }
-document.getElementById('tStart').addEventListener('click', (e)=>{
-  if(timerRunning){
-    clearInterval(timerInterval);
-    timerRunning = false;
-    e.target.textContent = 'старт';
-    return;
-  }
+function startCountdown(){
+  clearInterval(timerInterval);
   timerRunning = true;
-  e.target.textContent = 'пауза';
+  document.getElementById('tStart').textContent = 'пауза';
   timerInterval = setInterval(()=>{
     timerLeft = Math.max(0, timerLeft-1);
     paintTimer();
@@ -866,6 +887,20 @@ document.getElementById('tStart').addEventListener('click', (e)=>{
       document.getElementById('tStart').textContent='старт';
     }
   }, 1000);
+}
+function startFreshRoundTimer(){
+  timerLeft = timerTotal;
+  paintTimer();
+  startCountdown();
+}
+document.getElementById('tStart').addEventListener('click', (e)=>{
+  if(timerRunning){
+    clearInterval(timerInterval);
+    timerRunning = false;
+    e.target.textContent = 'старт';
+    return;
+  }
+  startCountdown();
 });
 document.getElementById('tReset').addEventListener('click', resetTimer);
 
