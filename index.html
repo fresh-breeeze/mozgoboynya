@@ -252,6 +252,21 @@
   }
   .big-timer-num.low{color:var(--coral);}
 
+  .truth-prompt{
+    font-size:clamp(19px,2.4vw,25px);
+    font-weight:700;
+    line-height:1.4;
+    max-width:600px;
+  }
+  .true-btn{background:var(--mint) !important;}
+  .false-btn{background:var(--coral) !important; color:var(--paper) !important;}
+  #videoSlot iframe{
+    width:min(560px, 85vw);
+    height:315px;
+    border-radius:14px;
+    border:1px solid var(--line);
+  }
+
   .item-nav{display:flex; align-items:center; gap:14px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--paper-dim);}
   .item-nav button{background:none;border:1px solid var(--line);color:var(--paper); width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;}
   .item-nav button:hover{background:rgba(255,255,255,0.08);}
@@ -328,6 +343,17 @@
         <img class="result-photo" id="resultPhoto">
         <div class="result-name" id="resultName"></div>
       </div>
+
+      <div class="truth-prompt" id="truthPrompt" style="display:none;"></div>
+      <div class="guess-form" id="truthButtons" style="display:none;">
+        <button class="submit-btn true-btn" id="btnTrue">правда</button>
+        <button class="submit-btn false-btn" id="btnFalse">ложь</button>
+      </div>
+      <div class="guess-result" id="truthResult">
+        <div class="result-tag" id="truthResultTag"></div>
+      </div>
+      <button class="listen-btn" id="showVideoBtn" style="display:none;">🎬 показать видео</button>
+      <div id="videoSlot"></div>
 
       <div class="big-timer-num" id="bigTimerNum" style="display:none;">10:00</div>
 
@@ -412,11 +438,23 @@ const ROUNDS = [
   },
   {
     title: 'Не дай себя обмануть',
-    note: 'Читаешь утверждение — команда голосует правда/миф. +1 за верный ответ.',
+    note: 'Жми «правда» или «ложь». Последний факт про Ваню — особый, там появится кнопка с видео.',
+    truthRound: true,
     items: [
-      {prompt:'у нас в компании кто-то проходил собеседование, лёжа в кровати с температурой', answer:'[правда / миф — впиши факт]'},
-      {prompt:'в компании есть киноклуб, который существует уже больше года', answer:'[правда / миф]'},
-      {prompt:'один из тимлидов ни разу не опаздывал на созвон за весь 2026 год', answer:'[правда / миф]'},
+      {statement:'Настя Федотова с 5 до 13 лет занималась спортивной гимнастикой, дошла до второго взрослого разряда, а на соревнованиях в Казани сломала палец на кольцах', isTrue:false},
+      {statement:'Дима Мусин ходил на моделирование по дереву', isTrue:true},
+      {statement:'Паша Соковнин 4 года учился в музыкалке по классу флейты и играл в школьном духовом оркестре на выпускном', isTrue:false},
+      {statement:'Маму Маши Заворотной уговорила её сделать пирсинг в животе', isTrue:true},
+      {statement:'Юля Домославская в третьем классе играла лягушку в школьной постановке «Дюймовочки»', isTrue:false},
+      {statement:'Маша Елисеева умеет жонглировать сидя на шпагате', isTrue:true},
+      {statement:'Полина Поспелова свободно говорит на трёх языках, один из которых — эсперанто', isTrue:false},
+      {statement:'Леша Тартыжов написал первую русскоязычную статью на Хабре про малоизвестный фреймворк, и она попала в сборник статей по мобильной разработке', isTrue:true},
+      {statement:'Коля Хачко ни разу в жизни не смотрел ни одной серии «Друзей» и принципиально не собирается', isTrue:false},
+      {statement:'Миша Марков часто подхватывает последнее слово в диалоге и начинает петь', isTrue:true},
+      {statement:'У Сережи Глухова раньше дома жил ручной попугай, который умел говорить «дедлайн»', isTrue:false},
+      {statement:'Макс Анащенко ест макароны с хлебом', isTrue:true},
+      {statement:'Алина Александрова знает французский', isTrue:true},
+      {statement:'Ваня Братенькин использует особую технику быстрого спуска по лестнице', isTrue:true, video:'https://www.youtube.com/embed/xaq2aw3T4I0'},
     ]
   },
   {
@@ -481,6 +519,14 @@ const resultTag = document.getElementById('resultTag');
 const resultPhoto = document.getElementById('resultPhoto');
 const resultName = document.getElementById('resultName');
 const bigTimerNum = document.getElementById('bigTimerNum');
+const truthPrompt = document.getElementById('truthPrompt');
+const truthButtons = document.getElementById('truthButtons');
+const btnTrue = document.getElementById('btnTrue');
+const btnFalse = document.getElementById('btnFalse');
+const truthResult = document.getElementById('truthResult');
+const truthResultTag = document.getElementById('truthResultTag');
+const showVideoBtn = document.getElementById('showVideoBtn');
+const videoSlot = document.getElementById('videoSlot');
 let currentAudio = null;
 
 function renderRoundSwitch(){
@@ -523,8 +569,24 @@ function render(){
   guessInput.value = '';
   guessInput.disabled = false;
   submitGuess.disabled = false;
+  truthResult.classList.remove('show');
+  truthButtons.querySelectorAll('button').forEach(b=>b.disabled=false);
+  showVideoBtn.style.display = 'none';
+  videoSlot.innerHTML = '';
 
-  if(r.rulesOnly){
+  if(r.truthRound){
+    promptEl.style.display = 'none';
+    promptImg.style.display = 'none';
+    answerEl.style.display = 'none';
+    revealBtn.style.display = 'none';
+    listenBtn.style.display = 'none';
+    guessForm.style.display = 'none';
+    bigTimerNum.style.display = 'none';
+    truthPrompt.style.display = 'block';
+    truthButtons.style.display = 'flex';
+
+    truthPrompt.textContent = it.statement;
+  } else if(r.rulesOnly){
     promptEl.style.display = 'none';
     promptImg.style.display = 'none';
     answerEl.style.display = 'none';
@@ -601,6 +663,32 @@ submitGuess.addEventListener('click', ()=>{
   if(ok){ correctCount++; cVal.textContent = correctCount; }
 });
 guessInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !submitGuess.disabled) submitGuess.click(); });
+
+function handleTruthGuess(guessTrue){
+  const r = ROUNDS[roundIdx];
+  const it = r.items[itemIdx];
+  const ok = guessTrue === it.isTrue;
+
+  truthResultTag.textContent = ok ? 'верно! это ' + (it.isTrue ? 'правда' : 'ложь') : 'мимо, на самом деле это ' + (it.isTrue ? 'правда' : 'ложь');
+  truthResultTag.className = 'result-tag ' + (ok ? 'correct' : 'wrong');
+  truthResult.classList.add('show');
+
+  btnTrue.disabled = true;
+  btnFalse.disabled = true;
+
+  if(ok){ correctCount++; cVal.textContent = correctCount; }
+
+  if(it.video){
+    showVideoBtn.style.display = 'inline-block';
+  }
+}
+btnTrue.addEventListener('click', ()=>handleTruthGuess(true));
+btnFalse.addEventListener('click', ()=>handleTruthGuess(false));
+showVideoBtn.addEventListener('click', ()=>{
+  const it = ROUNDS[roundIdx].items[itemIdx];
+  videoSlot.innerHTML = `<iframe src="${it.video}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+  showVideoBtn.style.display = 'none';
+});
 
 revealBtn.addEventListener('click', ()=>{
   const showing = answerEl.classList.toggle('show');
