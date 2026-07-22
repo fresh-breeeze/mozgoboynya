@@ -269,6 +269,7 @@
     line-height:1;
   }
   .big-timer-num.low{color:var(--coral);}
+  .big-timer-num.done{font-size:clamp(28px,5vw,48px);}
 
   .truth-prompt{
     font-size:clamp(19px,2.4vw,25px);
@@ -322,19 +323,39 @@
 
   .controls-row{display:flex; gap:28px; flex-wrap:wrap; align-items:center; justify-content:center;}
 
-  .timer-wrap{display:flex; align-items:center; gap:14px;}
-  .timer-ring{position:relative; width:78px; height:78px;}
+  .timer-wrap{
+    position:fixed;
+    left:24px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    z-index:20;
+  }
+  .timer-ring{position:relative; width:180px; height:180px;}
   .timer-ring svg{transform:rotate(-90deg);}
-  .timer-ring circle{fill:none; stroke-width:5;}
+  .timer-ring circle{fill:none; stroke-width:8;}
   .timer-bg{stroke:rgba(255,255,255,0.1);}
   .timer-fg{stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke .3s ease;}
   .timer-fg.low{stroke:var(--coral);}
-  .timer-num{position:absolute;inset:0; display:flex;align-items:center;justify-content:center; font-family:'Manrope', sans-serif; font-weight:700; font-size:16px;}
+  .timer-num{
+    position:absolute;inset:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Manrope', sans-serif; font-weight:800; font-size:38px;
+    text-align:center; line-height:1.15;
+  }
+  .timer-num.done{font-size:22px; color:var(--coral); font-weight:800;}
   .timer-controls{display:flex;flex-direction:column;gap:6px;}
   .timer-controls .row{display:flex; gap:6px;}
-  .timer-controls button{background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--paper); border-radius:8px; padding:6px 10px; font-size:12px; font-family:'Manrope'; font-weight:700; cursor:pointer;}
+  .timer-controls button{background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--paper); border-radius:8px; padding:8px 14px; font-size:13px; font-family:'Manrope'; font-weight:700; cursor:pointer;}
   .timer-controls button:hover{background:rgba(255,255,255,0.13);}
   .timer-controls button.primary{background:var(--gold); color:var(--ink); border-color:var(--gold);}
+
+  @media (max-width:900px){
+    .timer-wrap{position:static; transform:none; margin:0 auto 10px;}
+  }
 
   .counter-wrap{display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.05); border:1px solid var(--line); border-radius:14px; padding:10px 16px;}
   .counter-label{font-size:13px; color:var(--paper-dim); font-weight:700;}
@@ -444,22 +465,6 @@
     </div>
 
     <div class="controls-row">
-      <div class="timer-wrap">
-        <div class="timer-ring">
-          <svg width="78" height="78">
-            <circle class="timer-bg" cx="39" cy="39" r="33"></circle>
-            <circle class="timer-fg" id="timerFg" cx="39" cy="39" r="33"></circle>
-          </svg>
-          <div class="timer-num" id="timerNum">10:00</div>
-        </div>
-        <div class="timer-controls">
-          <div class="row">
-            <button class="primary" id="tStart">старт</button>
-            <button id="tReset">сброс</button>
-          </div>
-        </div>
-      </div>
-
       <div class="counter-wrap">
         <span class="counter-label">правильных ответов</span>
         <button class="counter-btn" id="cMinus">−</button>
@@ -468,6 +473,22 @@
       </div>
     </div>
   </main>
+
+  <div class="timer-wrap">
+    <div class="timer-ring">
+      <svg width="180" height="180">
+        <circle class="timer-bg" cx="90" cy="90" r="80"></circle>
+        <circle class="timer-fg" id="timerFg" cx="90" cy="90" r="80"></circle>
+      </svg>
+      <div class="timer-num" id="timerNum">10:00</div>
+    </div>
+    <div class="timer-controls">
+      <div class="row">
+        <button class="primary" id="tStart">старт</button>
+        <button id="tReset">сброс</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <div class="round-switch" id="roundSwitch"></div>
@@ -556,13 +577,13 @@ const ROUNDS = [
     screenRound: true,
     items: [
       {kadr:'1skr.png', otvet:'1skr_otvet.png',
-        options:['запустить sokovnin.exe', 'распаковать gluhov.exe', 'перезагрузить fedotova.exe'],
+        options:['sokovnin.exe', 'gluhov.exe', 'sergeev.exe'],
         correctIndex:1},
       {kadr:'2skr.png', otvet:'2skr_otvet.png',
-        options:['это тебе показалось 🤣', 'это я не в тему 🤣', 'это Юле ответ 🤣'],
+        options:['это дурацкий ответ🤣', 'это пи****а ответ🤣', 'это Юле ответ 🤣'],
         correctIndex:2},
       {kadr:'3skr.png', otvet:'3skr_otvet.png',
-        options:['а ты почему не отвечаешь мне?', 'а ты почему меня игноришь?', 'ты вообще получил моё сообщение?'],
+        options:['а ты почему меня не любишь?', 'а ты почему меня игноришь?', 'а ты почему меня так бесишь?'],
         correctIndex:1},
       {kadr:'4skr.png', otvet:'4skr_otvet.png',
         options:['медаль', 'кубок', 'грамоту'],
@@ -957,7 +978,7 @@ let timerRunning = false;
 let timerInterval = null;
 const timerFg = document.getElementById('timerFg');
 const timerNum = document.getElementById('timerNum');
-const CIRC = 2*Math.PI*33;
+const CIRC = 2*Math.PI*80;
 timerFg.style.strokeDasharray = CIRC;
 
 function fmt(s){
@@ -969,8 +990,18 @@ function paintTimer(){
   const frac = Math.max(0, timerLeft/timerTotal);
   timerFg.style.strokeDashoffset = CIRC*(1-frac);
   timerFg.classList.toggle('low', timerLeft<=30);
-  timerNum.textContent = fmt(timerLeft);
-  bigTimerNum.textContent = fmt(timerLeft);
+
+  if(timerLeft<=0){
+    timerNum.textContent = 'время закончено';
+    timerNum.classList.add('done');
+    bigTimerNum.textContent = 'время закончено';
+    bigTimerNum.classList.add('done');
+  } else {
+    timerNum.textContent = fmt(timerLeft);
+    timerNum.classList.remove('done');
+    bigTimerNum.textContent = fmt(timerLeft);
+    bigTimerNum.classList.remove('done');
+  }
   bigTimerNum.classList.toggle('low', timerLeft<=30);
 }
 function resetTimer(){
