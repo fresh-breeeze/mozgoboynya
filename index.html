@@ -291,6 +291,31 @@
   .hints-images{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
   .hints-images img{max-width:400px; max-height:320px; border-radius:12px; border:1px solid var(--line); object-fit:cover;}
 
+  .options-col{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    width:100%;
+    max-width:480px;
+  }
+  .option-btn{
+    font-family:'Manrope', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:14px 20px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.05);
+    color:var(--paper);
+    cursor:pointer;
+    text-align:left;
+    transition:background .12s ease, transform .12s ease;
+  }
+  .option-btn:hover:not(:disabled){background:rgba(244,183,64,0.14); border-color:var(--gold);}
+  .option-btn:disabled{cursor:default; opacity:.55;}
+  .option-btn.correct{background:rgba(95,217,164,0.18); border-color:var(--mint); color:var(--mint); opacity:1;}
+  .option-btn.wrong{background:rgba(232,85,91,0.18); border-color:var(--coral); color:var(--coral); opacity:1;}
+
   .item-nav{display:flex; align-items:center; gap:14px; font-family:'Manrope', sans-serif; font-size:13px; color:var(--paper-dim);}
   .item-nav button{background:none;border:1px solid var(--line);color:var(--paper); width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;}
   .item-nav button:hover{background:rgba(255,255,255,0.08);}
@@ -402,6 +427,13 @@
         <div class="result-name" id="filmResultName"></div>
       </div>
 
+      <img class="prompt-img" id="screenKadr" style="display:none;">
+      <div class="options-col" id="optionsCol" style="display:none;"></div>
+      <div class="guess-result" id="screenResult">
+        <div class="result-tag" id="screenResultTag"></div>
+        <img class="prompt-img" id="screenOtvetImg">
+      </div>
+
       <div class="big-timer-num" id="bigTimerNum" style="display:none;">10:00</div>
 
       <div class="item-nav">
@@ -496,6 +528,8 @@ const ROUNDS = [
       {statement:'У Сережи Глухова раньше дома жил ручной попугай, который умел говорить «дедлайн»', isTrue:false},
       {statement:'Макс Анащенко ест макароны с хлебом', isTrue:true},
       {statement:'Алина Александрова знает французский', isTrue:true},
+      {statement:'У Саши Манзурова три компьютера — на macOS, Windows и Linux', isTrue:true},
+      {statement:'Катя Волченко — мастер спорта по дайвингу и подводному плаванию', isTrue:true},
       {statement:'Ваня Братенькин использует особую технику быстрого спуска по лестнице', isTrue:true, video:'https://www.youtube.com/embed/xaq2aw3T4I0'},
     ]
   },
@@ -518,10 +552,27 @@ const ROUNDS = [
   },
   {
     title: 'ЧБД',
-    note: 'Скрин сообщения из Слака — команда угадывает продолжение или автора. Вставь картинку скрина в image, пример ниже.',
+    note: 'Смотрим скрин. Выбираем, чем закончилась фраза. Жмём вариант — увидим правильный скрин.',
+    screenRound: true,
     items: [
-      {prompt:'«мы верим, что найм — это не воронка, а...»', image:'images/screenshot1.png', answer:'[впиши окончание / автора]'},
-      {prompt:'«если кандидат опаздывает на собес, то...»', answer:'[впиши]'},
+      {kadr:'1skr.png', otvet:'1skr_otvet.png',
+        options:['а ты почему не отвечаешь мне?', 'а ты почему меня игноришь?', 'ты вообще получил моё сообщение?'],
+        correctIndex:1},
+      {kadr:'2skr.png', otvet:'2skr_otvet.png',
+        options:['я был совсем другим человеком', 'мне казалось это плохой идеей', 'такого дейвайса ещё не было'],
+        correctIndex:2},
+      {kadr:'3skr.png', otvet:'3skr_otvet.png',
+        options:['выключил свет и ушёл 😉', 'отменил свою запись 😉', 'не заплатил за аренду 😉'],
+        correctIndex:1},
+      {kadr:'4skr.png', otvet:'4skr_otvet.png',
+        options:['медаль', 'кубок', 'грамоту'],
+        correctIndex:2},
+      {kadr:'5skr.png', otvet:'5skr_otvet.png',
+        options:['это тебе показалось 🤣', 'это я не в тему 🤣', 'это Юле ответ 🤣'],
+        correctIndex:2},
+      {kadr:'6skr.png', otvet:'6skr_otvet.png',
+        options:['запустить sokovnin.exe', 'распаковать gluhov.exe', 'перезагрузить fedotova.exe'],
+        correctIndex:1},
     ]
   },
 ];
@@ -590,6 +641,11 @@ const filmResult = document.getElementById('filmResult');
 const filmResultTag = document.getElementById('filmResultTag');
 const filmOtvetImg = document.getElementById('filmOtvetImg');
 const filmResultName = document.getElementById('filmResultName');
+const screenKadr = document.getElementById('screenKadr');
+const optionsCol = document.getElementById('optionsCol');
+const screenResult = document.getElementById('screenResult');
+const screenResultTag = document.getElementById('screenResultTag');
+const screenOtvetImg = document.getElementById('screenOtvetImg');
 let currentAudio = null;
 
 function renderRoundSwitch(){
@@ -643,6 +699,8 @@ function render(){
   submitFilm.disabled = false;
   hintBtn1.disabled = false;
   hintBtn2.disabled = false;
+  screenResult.classList.remove('show');
+  optionsCol.innerHTML = '';
 
   if(r.truthRound){
     promptEl.style.display = 'none';
@@ -655,6 +713,8 @@ function render(){
     filmKadr.style.display = 'none';
     hintsRow.style.display = 'none';
     filmForm.style.display = 'none';
+    screenKadr.style.display = 'none';
+    optionsCol.style.display = 'none';
     truthPrompt.style.display = 'block';
     truthButtons.style.display = 'flex';
 
@@ -669,6 +729,8 @@ function render(){
     bigTimerNum.style.display = 'none';
     truthPrompt.style.display = 'none';
     truthButtons.style.display = 'none';
+    screenKadr.style.display = 'none';
+    optionsCol.style.display = 'none';
 
     filmKadr.src = it.kadr;
     filmKadr.style.display = 'block';
@@ -687,10 +749,50 @@ function render(){
       hintsImages.appendChild(img);
       hintBtn2.disabled = true;
     };
+  } else if(r.screenRound){
+    promptEl.style.display = 'none';
+    promptImg.style.display = 'none';
+    answerEl.style.display = 'none';
+    revealBtn.style.display = 'none';
+    listenBtn.style.display = 'none';
+    guessForm.style.display = 'none';
+    bigTimerNum.style.display = 'none';
+    truthPrompt.style.display = 'none';
+    truthButtons.style.display = 'none';
+    filmKadr.style.display = 'none';
+    hintsRow.style.display = 'none';
+    filmForm.style.display = 'none';
+
+    screenKadr.src = it.kadr;
+    screenKadr.style.display = 'block';
+    optionsCol.style.display = 'flex';
+
+    it.options.forEach((opt, idx)=>{
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=>{
+        const buttons = optionsCol.querySelectorAll('button');
+        buttons.forEach(b=>b.disabled=true);
+        const ok = idx === it.correctIndex;
+        btn.classList.add(ok ? 'correct' : 'wrong');
+        if(!ok){ buttons[it.correctIndex].classList.add('correct'); }
+
+        screenResultTag.textContent = ok ? 'верно!' : 'мимо';
+        screenResultTag.className = 'result-tag ' + (ok ? 'correct' : 'wrong');
+        screenOtvetImg.src = it.otvet;
+        screenResult.classList.add('show');
+
+        if(ok){ correctCount++; cVal.textContent = correctCount; }
+      });
+      optionsCol.appendChild(btn);
+    });
   } else if(r.rulesOnly){
     filmKadr.style.display = 'none';
     hintsRow.style.display = 'none';
     filmForm.style.display = 'none';
+    screenKadr.style.display = 'none';
+    optionsCol.style.display = 'none';
     promptEl.style.display = 'none';
     promptImg.style.display = 'none';
     answerEl.style.display = 'none';
@@ -709,6 +811,8 @@ function render(){
     filmKadr.style.display = 'none';
     hintsRow.style.display = 'none';
     filmForm.style.display = 'none';
+    screenKadr.style.display = 'none';
+    optionsCol.style.display = 'none';
 
     if(currentAudio){ currentAudio.pause(); currentAudio = null; }
     currentAudio = new Audio(it.audio);
@@ -720,6 +824,8 @@ function render(){
     filmKadr.style.display = 'none';
     hintsRow.style.display = 'none';
     filmForm.style.display = 'none';
+    screenKadr.style.display = 'none';
+    optionsCol.style.display = 'none';
     guessForm.style.display = 'none';
     bigTimerNum.style.display = 'none';
 
